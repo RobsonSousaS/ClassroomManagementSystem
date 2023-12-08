@@ -80,7 +80,11 @@ public class ClassRoomModel {
     }
 
     public String getIdStringTemplate() {
-        return "B" + getBlock() + "S" + getNumberClass();
+        if (getNumberClass() < 10) {
+            return "B" + getBlock() + "S0" + getNumberClass();
+        } else {
+            return "B" + getBlock() + "S" + getNumberClass();
+        }
     }
 
 }

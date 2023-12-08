@@ -3,7 +3,6 @@ package br.com.robytech.view;
 import br.com.robytech.model.ClassRoomModel;
 import br.com.robytech.model.enums.StatusEnum;
 import br.com.robytech.model.enums.TypeClassEnum;
-import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -14,17 +13,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ManageRoomsPage extends Application{
+public class ManageRoomsPage {
 
-    private static ObservableList<ClassRoomModel> classRooms;
-    private static ListView<ClassRoomModel> roomListView;
+    private ObservableList<ClassRoomModel> classRooms;
+    private ListView<ClassRoomModel> roomListView;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-
-    public void start(Stage primaryStage) {
-
+    public void show(Stage primaryStage) {
         primaryStage.setTitle("Gerenciar Salas");
 
         VBox root = new VBox(20);
@@ -98,7 +92,7 @@ public class ManageRoomsPage extends Application{
         primaryStage.show();
     }
 
-    private static void showAddRoomDialog() {
+    private void showAddRoomDialog() {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.setTitle("Adicionar Sala");
@@ -128,7 +122,7 @@ public class ManageRoomsPage extends Application{
 
             ClassRoomModel newRoom = new ClassRoomModel(block, number, type, status);
             classRooms.add(newRoom);
-            updateListView(classRooms);
+            updateListView();
 
             dialogStage.close();
         });
@@ -141,8 +135,7 @@ public class ManageRoomsPage extends Application{
         dialogStage.showAndWait();
     }
 
-    private static void updateListView(ObservableList<ClassRoomModel> updatedList) {
-        roomListView.setItems(updatedList);
+    private void updateListView() {
+        roomListView.setItems(classRooms);
     }
-
 }
