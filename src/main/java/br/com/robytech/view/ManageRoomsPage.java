@@ -3,6 +3,7 @@ package br.com.robytech.view;
 import br.com.robytech.model.ClassRoomModel;
 import br.com.robytech.model.enums.StatusEnum;
 import br.com.robytech.model.enums.TypeClassEnum;
+import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -13,21 +14,29 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class ManageRoomsPage {
+public class ManageRoomsPage extends Application{
 
-    public static void show(Stage primaryStage) {
+    private static ObservableList<ClassRoomModel> classRooms;
+    private static ListView<ClassRoomModel> roomListView;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    public void start(Stage primaryStage) {
+
         primaryStage.setTitle("Gerenciar Salas");
 
         VBox root = new VBox(20);
         root.setStyle("-fx-background-color: #98fb98;");
         root.setAlignment(Pos.CENTER);
 
-        ObservableList<ClassRoomModel> classRooms = FXCollections.observableArrayList();
+        classRooms = FXCollections.observableArrayList();
 
         TextField searchField = new TextField();
         searchField.setPromptText("Digite número da sala");
 
-        ListView<ClassRoomModel> roomListView = new ListView<>(classRooms);
+        roomListView = new ListView<>(FXCollections.observableArrayList());
         roomListView.setCellFactory(param -> new ListCell<ClassRoomModel>() {
             private HBox buttonsBox;
 
@@ -44,6 +53,7 @@ public class ManageRoomsPage {
                     ClassRoomModel item = getItem();
                     System.out.println("Deletando sala: " + item);
                     classRooms.remove(item);
+                    updateListView(roomListView);
                 });
 
                 buttonsBox = new HBox(10, updateButton, deleteButton);
@@ -79,7 +89,7 @@ public class ManageRoomsPage {
         });
 
         Button addButton = new Button("Adicionar Sala");
-        addButton.setOnAction(event -> showAddRoomDialog(classRooms));
+        addButton.setOnAction(event -> showAddRoomDialog());
 
         root.getChildren().addAll(searchField, searchButton, addButton, roomListView);
 
@@ -88,7 +98,7 @@ public class ManageRoomsPage {
         primaryStage.show();
     }
 
-    private static void showAddRoomDialog(ObservableList<ClassRoomModel> classRooms) {
+    private static void showAddRoomDialog() {
         Stage dialogStage = new Stage();
         dialogStage.initModality(Modality.WINDOW_MODAL);
         dialogStage.setTitle("Adicionar Sala");
@@ -118,6 +128,7 @@ public class ManageRoomsPage {
 
             ClassRoomModel newRoom = new ClassRoomModel(block, number, type, status);
             classRooms.add(newRoom);
+            updateListView(classRooms);
 
             dialogStage.close();
         });
@@ -129,4 +140,9 @@ public class ManageRoomsPage {
         dialogStage.setScene(dialogScene);
         dialogStage.showAndWait();
     }
+
+    private static void updateListView(ObservableList<ClassRoomModel> updatedList) {
+        roomListView.setItems(updatedList);
+    }
+
 }

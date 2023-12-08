@@ -15,7 +15,7 @@ public class MainMenuPage extends VBox {
         Button manageDisciplineButton = new Button("Gerenciar Disciplina");
         Button viewAllocationsButton = new Button("Visualizar Alocações");
 
-        manageRoomButton.setOnAction(event -> manageRoomButton.setOnAction(e -> {ManageRoomsPage.show(primaryStage);}));
+        manageRoomButton.setOnAction(event -> manageRoomButton.setOnAction(e -> {ManageRoomsPage.launch();;}));
         manageDisciplineButton.setOnAction(event -> System.out.println("Ação: Gerenciar Disciplina"));
         viewAllocationsButton.setOnAction(event -> System.out.println("Ação: Visualizar Alocações"));
 
