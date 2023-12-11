@@ -15,6 +15,18 @@ public class DisciplineModel {
     private HoraryEnum horary = HoraryEnum.AB;
     private ClassRoomModel classRoom;
 
+    public DisciplineModel(String nomeDiscipline,String course, int weeklyWorkload,
+            String teacher, TurnEnum turn, DaysWeekEnum day, HoraryEnum horary, ClassRoomModel classRoom) {
+        this.nomeDiscipline = nomeDiscipline;
+        this.course = course;
+        this.weeklyWorkload = weeklyWorkload;
+        this.teacher = teacher;
+        this.turn = turn;
+        this.day = day;
+        this.horary = horary;
+        this.classRoom = classRoom;
+    }
+
     public String getNomeDiscipline() {
         return nomeDiscipline;
     }

@@ -13,8 +13,10 @@ public class MainMenuPage extends VBox {
     public MainMenuPage(Stage primaryStage) {
         setSpacing(20);
         setAlignment(Pos.CENTER);
+        setStyle("-fx-background-color: #1cc6e8;");
 
         manageRoomsPage = new ManageRoomsPage();
+        manageDisciplinePage = new ManageDisciplinePage();
 
         Button manageRoomButton = new Button("Gerenciar Sala");
         Button manageDisciplineButton = new Button("Gerenciar Disciplina");

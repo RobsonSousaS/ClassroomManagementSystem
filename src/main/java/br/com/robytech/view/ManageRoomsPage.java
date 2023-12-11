@@ -22,7 +22,7 @@ public class ManageRoomsPage {
         primaryStage.setTitle("Gerenciar Salas");
 
         VBox root = new VBox(20);
-        root.setStyle("-fx-background-color: #98fb98;");
+        root.setStyle("-fx-background-color: #1cc6e8;");
         root.setAlignment(Pos.CENTER);
 
         classRooms = FXCollections.observableArrayList();
@@ -41,6 +41,7 @@ public class ManageRoomsPage {
                 updateButton.setOnAction(event -> {
                     ClassRoomModel item = getItem();
                     System.out.println("Atualizando sala: " + item);
+                    showEditRoomDialog(item);
                 });
 
                 deleteButton.setOnAction(event -> {
@@ -127,8 +128,63 @@ public class ManageRoomsPage {
             dialogStage.close();
         });
 
+         Button cancelButton = new Button("Cancelar");
+        cancelButton.setOnAction(event -> dialogStage.close());
+
         dialogRoot.getChildren().addAll(blockField, numberField, typeComboBox, statusComboBox,
-                addButton);
+                addButton, cancelButton);
+
+        Scene dialogScene = new Scene(dialogRoot, 400, 300);
+        dialogStage.setScene(dialogScene);
+        dialogStage.showAndWait();
+    }
+
+    private void showEditRoomDialog(ClassRoomModel roomToEdit) {
+        Stage dialogStage = new Stage();
+        dialogStage.initModality(Modality.WINDOW_MODAL);
+        dialogStage.setTitle("Editar Sala");
+
+        VBox dialogRoot = new VBox(20);
+        dialogRoot.setAlignment(Pos.CENTER);
+
+        TextField blockField = new TextField();
+        blockField.setPromptText("Número do Bloco");
+        blockField.setText(String.valueOf(roomToEdit.getBlock()));
+
+        TextField numberField = new TextField();
+        numberField.setPromptText("Número da Sala");
+        numberField.setText(String.valueOf(roomToEdit.getNumberClass()));
+
+        ComboBox<TypeClassEnum> typeComboBox = new ComboBox<>(
+                FXCollections.observableArrayList(TypeClassEnum.values()));
+        typeComboBox.setPromptText("Tipo de Sala");
+        typeComboBox.setValue(roomToEdit.getTypeClass());
+
+        ComboBox<StatusEnum> statusComboBox = new ComboBox<>(FXCollections.observableArrayList(StatusEnum.values()));
+        statusComboBox.setPromptText("Status");
+        statusComboBox.setValue(roomToEdit.getStatus());
+
+        Button editButton = new Button("Editar");
+        editButton.setOnAction(event -> {
+            int block = Integer.parseInt(blockField.getText());
+            int number = Integer.parseInt(numberField.getText());
+            TypeClassEnum type = typeComboBox.getValue();
+            StatusEnum status = statusComboBox.getValue();
+
+            ClassRoomModel updatedRoom = new ClassRoomModel(block, number, type, status);
+
+            int index = classRooms.indexOf(roomToEdit);
+            classRooms.set(index, updatedRoom);
+            updateListView();
+
+            dialogStage.close();
+        });
+
+        Button cancelButton = new Button("Cancelar");
+        cancelButton.setOnAction(event -> dialogStage.close());
+
+        dialogRoot.getChildren().addAll( blockField, numberField, typeComboBox, statusComboBox,
+                editButton, cancelButton);
 
         Scene dialogScene = new Scene(dialogRoot, 400, 300);
         dialogStage.setScene(dialogScene);
@@ -138,4 +194,5 @@ public class ManageRoomsPage {
     private void updateListView() {
         roomListView.setItems(classRooms);
     }
+
 }
