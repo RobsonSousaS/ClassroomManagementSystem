@@ -18,6 +18,10 @@ public class ManageRoomsPage {
     private ObservableList<ClassRoomModel> classRooms;
     private ListView<ClassRoomModel> roomListView;
 
+    {
+        roomListView = new ListView<>();
+    }
+
     public void show(Stage primaryStage) {
         primaryStage.setTitle("Gerenciar Salas");
 
@@ -25,7 +29,8 @@ public class ManageRoomsPage {
         root.setStyle("-fx-background-color: #1cc6e8;");
         root.setAlignment(Pos.CENTER);
 
-        classRooms = FXCollections.observableArrayList();
+        classRooms = FXCollections.observableArrayList(ClassRoomModel.loadFromFile());
+        updateListView();
 
         TextField searchField = new TextField();
         searchField.setPromptText("Digite número da sala");
@@ -123,12 +128,13 @@ public class ManageRoomsPage {
 
             ClassRoomModel newRoom = new ClassRoomModel(block, number, type, status);
             classRooms.add(newRoom);
+            ClassRoomModel.saveToFile();
             updateListView();
 
             dialogStage.close();
         });
 
-         Button cancelButton = new Button("Cancelar");
+        Button cancelButton = new Button("Cancelar");
         cancelButton.setOnAction(event -> dialogStage.close());
 
         dialogRoot.getChildren().addAll(blockField, numberField, typeComboBox, statusComboBox,
@@ -183,7 +189,7 @@ public class ManageRoomsPage {
         Button cancelButton = new Button("Cancelar");
         cancelButton.setOnAction(event -> dialogStage.close());
 
-        dialogRoot.getChildren().addAll( blockField, numberField, typeComboBox, statusComboBox,
+        dialogRoot.getChildren().addAll(blockField, numberField, typeComboBox, statusComboBox,
                 editButton, cancelButton);
 
         Scene dialogScene = new Scene(dialogRoot, 400, 300);
@@ -192,7 +198,7 @@ public class ManageRoomsPage {
     }
 
     private void updateListView() {
-        roomListView.setItems(classRooms);
+        roomListView.setItems(FXCollections.observableArrayList(classRooms));
     }
 
 }

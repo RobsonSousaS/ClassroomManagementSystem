@@ -1,5 +1,8 @@
 package br.com.robytech.view;
 
+import java.util.ArrayList;
+
+import br.com.robytech.model.ClassRoomModel;
 import br.com.robytech.model.DisciplineModel;
 import br.com.robytech.model.enums.DaysWeekEnum;
 import br.com.robytech.model.enums.HoraryEnum;
@@ -19,6 +22,10 @@ public class ManageDisciplinePage {
     private static ObservableList<DisciplineModel> disciplines;
     private static ListView<DisciplineModel> disciplineListView;
 
+    {
+        disciplineListView = new ListView<>();
+    }
+
     public void show(Stage primaryStage) {
         primaryStage.setTitle("Gerenciar Disciplinas");
 
@@ -26,7 +33,8 @@ public class ManageDisciplinePage {
         root.setStyle("-fx-background-color: #1cc6e8;");
         root.setAlignment(Pos.CENTER);
 
-        disciplines = FXCollections.observableArrayList();
+        disciplines = FXCollections.observableArrayList(DisciplineModel.loadFromFile());
+        updateListView(disciplines);
 
         TextField searchField = new TextField();
         searchField.setPromptText("Digite o código ou nome da disciplina");
@@ -47,7 +55,7 @@ public class ManageDisciplinePage {
                 deleteButton.setOnAction(event -> {
                     DisciplineModel item = getItem();
                     disciplines.remove(item);
-                    updateListView(disciplineListView); 
+                    updateListView(disciplineListView);
                 });
 
                 buttonsBox = new HBox(10, updateButton, deleteButton);
@@ -128,6 +136,10 @@ public class ManageDisciplinePage {
                 FXCollections.observableArrayList(HoraryEnum.values()));
         horaryComboBox.setPromptText("Horário");
 
+        ComboBox<ClassRoomModel> classRoomComboBox = new ComboBox<>(
+                FXCollections.observableArrayList());
+        classRoomComboBox.setPromptText("Selecionar Sala");
+
         Button addButton = new Button("Adicionar");
         addButton.setOnAction(event -> {
             String nomeDiscipline = nomeDisciplineField.getText();
@@ -138,18 +150,21 @@ public class ManageDisciplinePage {
             DaysWeekEnum day = dayComboBox.getValue();
             HoraryEnum horary = horaryComboBox.getValue();
 
-            DisciplineModel newDiscipline = new DisciplineModel(nomeDiscipline, course, weeklyWorkload,
-                    teacher, turn, day, horary, null);
+            ClassRoomModel selectedClassRoom = classRoomComboBox.getValue();
+            DisciplineModel newDiscipline = new DisciplineModel(
+                    nomeDiscipline, course, weeklyWorkload, teacher,
+                    turn, day, horary, selectedClassRoom);
             disciplines.add(newDiscipline);
+            DisciplineModel.saveToFile(new ArrayList<>(disciplines));
             updateListView(disciplines);
-
             dialogStage.close();
         });
 
-        dialogRoot.getChildren().addAll(nomeDisciplineField, courseField, weeklyWorkloadField,
-                teacherField, turnComboBox, dayComboBox, horaryComboBox, addButton);
+        dialogRoot.getChildren().addAll(
+                nomeDisciplineField, courseField, weeklyWorkloadField,
+                teacherField, turnComboBox, dayComboBox, horaryComboBox, classRoomComboBox, addButton);
 
-        Scene dialogScene = new Scene(dialogRoot, 500, 500);
+        Scene dialogScene = new Scene(dialogRoot, 500, 700);
         dialogStage.setScene(dialogScene);
         dialogStage.showAndWait();
     }
@@ -193,6 +208,11 @@ public class ManageDisciplinePage {
         horaryComboBox.setPromptText("Horário");
         horaryComboBox.setValue(disciplineToEdit.getHorary());
 
+        ComboBox<ClassRoomModel> classRoomComboBox = new ComboBox<>(
+                FXCollections.observableArrayList());
+        classRoomComboBox.setPromptText("Selecionar Sala");
+        classRoomComboBox.setValue(disciplineToEdit.getClassRoom());
+
         Button editButton = new Button("Editar");
         editButton.setOnAction(event -> {
 
@@ -204,8 +224,10 @@ public class ManageDisciplinePage {
             DaysWeekEnum day = dayComboBox.getValue();
             HoraryEnum horary = horaryComboBox.getValue();
 
+            ClassRoomModel selectedClassRoom = classRoomComboBox.getValue();
             DisciplineModel updatedDiscipline = new DisciplineModel(
-                    nomeDiscipline, course, weeklyWorkload, teacher, turn, day, horary, null);
+                    nomeDiscipline, course, weeklyWorkload, teacher,
+                    turn, day, horary, selectedClassRoom);
             int index = disciplines.indexOf(disciplineToEdit);
             disciplines.set(index, updatedDiscipline);
             updateListView(disciplines);
@@ -219,7 +241,7 @@ public class ManageDisciplinePage {
         dialogRoot.getChildren().addAll(nomeDisciplineField, courseField, weeklyWorkloadField,
                 teacherField, turnComboBox, dayComboBox, horaryComboBox, editButton, cancelButton);
 
-        Scene dialogScene = new Scene(dialogRoot, 400, 400);
+        Scene dialogScene = new Scene(dialogRoot, 500, 700);
         dialogStage.setScene(dialogScene);
         dialogStage.showAndWait();
     }
