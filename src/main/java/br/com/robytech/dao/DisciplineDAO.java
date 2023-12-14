@@ -129,8 +129,7 @@ public class DisciplineDAO {
         String sql = "UPDATE discipline SET nameDiscipline = ?, course = ?, weeklyWorkload = ?, teacher = ?, turn = ?, day = ?, horary = ? WHERE codDiscipline = ?";
 
         try (Connection connection = DatabaseUtil.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql,
-                        PreparedStatement.RETURN_GENERATED_KEYS)) {
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setString(1, discipline.getNameDiscipline());
             preparedStatement.setString(2, discipline.getCourse());
@@ -141,16 +140,14 @@ public class DisciplineDAO {
             preparedStatement.setString(7, discipline.getHorary().toString());
             preparedStatement.setString(8, discipline.getCodDiscipline());
 
-            int rowsAffected = preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
 
-            if (rowsAffected > 0) {
-                try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        discipline.setCodDiscipline(generatedKeys.getString(1));
-                    }
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    discipline.setCodDiscipline(generatedKeys.getString(1));
                 }
-                updateClassRoomWithDiscipline(discipline.getCodDiscipline(), discipline.getClassRoom());
             }
+            updateClassRoomWithDiscipline(discipline.getCodDiscipline(), discipline.getClassRoom());
         } catch (SQLException e) {
             e.printStackTrace();
         }
