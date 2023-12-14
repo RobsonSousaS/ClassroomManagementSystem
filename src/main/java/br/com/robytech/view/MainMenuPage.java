@@ -15,15 +15,15 @@ public class MainMenuPage extends VBox {
         setAlignment(Pos.CENTER);
         setStyle("-fx-background-color: #1cc6e8;");
 
-        manageRoomsPage = new ManageRoomsPage();
+        manageRoomsPage  = new ManageRoomsPage();
         manageDisciplinePage = new ManageDisciplinePage();
 
         Button manageRoomButton = new Button("Gerenciar Sala");
         Button manageDisciplineButton = new Button("Gerenciar Disciplina");
         Button viewAllocationsButton = new Button("Visualizar Alocações");
 
-        manageRoomButton.setOnAction(event -> manageRoomsPage.show(primaryStage));
-        manageDisciplineButton.setOnAction(event -> manageDisciplinePage.show(primaryStage));
+        manageRoomButton.setOnAction(event -> {manageRoomsPage.show(primaryStage); manageRoomsPage.updateListView();});
+        manageDisciplineButton.setOnAction(event -> {manageDisciplinePage.show(primaryStage); manageDisciplinePage.updateListView();});
         viewAllocationsButton.setOnAction(event -> System.out.println("Ação: Visualizar Alocações"));
 
         String buttonStyle = "-fx-font-size: 18; -fx-min-width: 380; -fx-min-height: 60;";

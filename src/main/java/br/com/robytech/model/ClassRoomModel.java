@@ -1,15 +1,7 @@
 package br.com.robytech.model;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+
 import java.util.List;
 
 import br.com.robytech.model.enums.StatusEnum;
@@ -24,6 +16,14 @@ public class ClassRoomModel implements Serializable {
     private List<DisciplineModel> disciplines;
 
     public ClassRoomModel(int block, int numberClass, TypeClassEnum typeClass, StatusEnum status) {
+        this.block = block;
+        this.numberClass = numberClass;
+        this.typeClass = typeClass;
+        this.status = status;
+    }
+
+    public ClassRoomModel(String idString, int block, int numberClass, TypeClassEnum typeClass, StatusEnum status) {
+        this.idString = idString;
         this.block = block;
         this.numberClass = numberClass;
         this.typeClass = typeClass;
@@ -108,34 +108,11 @@ public class ClassRoomModel implements Serializable {
         this.disciplines = disciplines;
     }
 
-    private static final long serialVersionUID = 1L;
-
-    private static final String CLASS_ROOMS_FILE = "classRooms.dat";
-
-    private static List<ClassRoomModel> classRooms = new ArrayList<>();
-
-    public static void saveToFile() {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(CLASS_ROOMS_FILE))) {
-            oos.writeObject(classRooms);
-            System.out.println("Lista de salas salva com sucesso!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public String toString() {
+        return getIdStringTemplate();
     }
 
-    public static List<ClassRoomModel> loadFromFile() {
-        List<ClassRoomModel> classRooms = new ArrayList<>();
-        if (Files.exists(Paths.get(CLASS_ROOMS_FILE))) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(CLASS_ROOMS_FILE))) {
-                classRooms = (List<ClassRoomModel>) ois.readObject();
-                System.out.println("Lista de salas carregada com sucesso!");
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
-                System.out.println("Erro ao carregar arquivo: " + e.getMessage());
-            }
-        }
-
-        return classRooms;
-    }
+    
 
 }

@@ -1,7 +1,6 @@
 package br.com.robytech.view;
 
-import java.util.ArrayList;
-
+import br.com.robytech.dao.DisciplineDAO;
 import br.com.robytech.model.ClassRoomModel;
 import br.com.robytech.model.DisciplineModel;
 import br.com.robytech.model.enums.DaysWeekEnum;
@@ -21,9 +20,11 @@ public class ManageDisciplinePage {
 
     private static ObservableList<DisciplineModel> disciplines;
     private static ListView<DisciplineModel> disciplineListView;
+    private DisciplineDAO disciplineDAO;
 
     {
         disciplineListView = new ListView<>();
+        disciplineDAO = new DisciplineDAO();
     }
 
     public void show(Stage primaryStage) {
@@ -33,8 +34,7 @@ public class ManageDisciplinePage {
         root.setStyle("-fx-background-color: #1cc6e8;");
         root.setAlignment(Pos.CENTER);
 
-        disciplines = FXCollections.observableArrayList(DisciplineModel.loadFromFile());
-        updateListView(disciplines);
+        disciplines = FXCollections.observableArrayList();
 
         TextField searchField = new TextField();
         searchField.setPromptText("Digite o código ou nome da disciplina");
@@ -54,7 +54,7 @@ public class ManageDisciplinePage {
 
                 deleteButton.setOnAction(event -> {
                     DisciplineModel item = getItem();
-                    disciplines.remove(item);
+                    disciplineDAO.deleteDiscipline(item.getCodDiscipline());
                     updateListView(disciplineListView);
                 });
 
@@ -69,7 +69,7 @@ public class ManageDisciplinePage {
                     setText(null);
                     setGraphic(null);
                 } else {
-                    setText(item.getCodDiscipline() + " - Nome: " + item.getNomeDiscipline() + " - Professor: "
+                    setText(item.getCodDiscipline() + " - Nome: " + item.getNameDiscipline() + " - Professor: "
                             + item.getTeacher() + " - Carga: "
                             + item.getWeeklyWorkload() + "Hrs" + " - Horario: " + item.getHorary() + " - Turno: "
                             + item.getTurn()
@@ -86,7 +86,7 @@ public class ManageDisciplinePage {
 
             for (DisciplineModel discipline : disciplines) {
                 if (discipline.getCodDiscipline().toLowerCase().contains(searchTerm)
-                        || discipline.getNomeDiscipline().toLowerCase().contains(searchTerm)) {
+                        || discipline.getNameDiscipline().toLowerCase().contains(searchTerm)) {
                     filteredList.add(discipline);
                 }
             }
@@ -137,7 +137,7 @@ public class ManageDisciplinePage {
         horaryComboBox.setPromptText("Horário");
 
         ComboBox<ClassRoomModel> classRoomComboBox = new ComboBox<>(
-                FXCollections.observableArrayList());
+                FXCollections.observableArrayList(disciplineDAO.getAllClassRooms()));
         classRoomComboBox.setPromptText("Selecionar Sala");
 
         Button addButton = new Button("Adicionar");
@@ -149,14 +149,13 @@ public class ManageDisciplinePage {
             TurnEnum turn = turnComboBox.getValue();
             DaysWeekEnum day = dayComboBox.getValue();
             HoraryEnum horary = horaryComboBox.getValue();
-
             ClassRoomModel selectedClassRoom = classRoomComboBox.getValue();
+
             DisciplineModel newDiscipline = new DisciplineModel(
                     nomeDiscipline, course, weeklyWorkload, teacher,
                     turn, day, horary, selectedClassRoom);
-            disciplines.add(newDiscipline);
-            DisciplineModel.saveToFile(new ArrayList<>(disciplines));
-            updateListView(disciplines);
+            disciplineDAO.insertDiscipline(newDiscipline);
+            updateListView();
             dialogStage.close();
         });
 
@@ -179,7 +178,7 @@ public class ManageDisciplinePage {
 
         TextField nomeDisciplineField = new TextField();
         nomeDisciplineField.setPromptText("Nome da Disciplina");
-        nomeDisciplineField.setText(disciplineToEdit.getNomeDiscipline());
+        nomeDisciplineField.setText(disciplineToEdit.getNameDiscipline());
 
         TextField courseField = new TextField();
         courseField.setPromptText("Curso");
@@ -209,7 +208,7 @@ public class ManageDisciplinePage {
         horaryComboBox.setValue(disciplineToEdit.getHorary());
 
         ComboBox<ClassRoomModel> classRoomComboBox = new ComboBox<>(
-                FXCollections.observableArrayList());
+                FXCollections.observableArrayList(disciplineDAO.getAllClassRooms()));
         classRoomComboBox.setPromptText("Selecionar Sala");
         classRoomComboBox.setValue(disciplineToEdit.getClassRoom());
 
@@ -223,14 +222,16 @@ public class ManageDisciplinePage {
             TurnEnum turn = turnComboBox.getValue();
             DaysWeekEnum day = dayComboBox.getValue();
             HoraryEnum horary = horaryComboBox.getValue();
-
             ClassRoomModel selectedClassRoom = classRoomComboBox.getValue();
+
             DisciplineModel updatedDiscipline = new DisciplineModel(
                     nomeDiscipline, course, weeklyWorkload, teacher,
                     turn, day, horary, selectedClassRoom);
+            disciplineDAO.updateDiscipline(updatedDiscipline);
+
             int index = disciplines.indexOf(disciplineToEdit);
             disciplines.set(index, updatedDiscipline);
-            updateListView(disciplines);
+            updateListView();
 
             dialogStage.close();
         });
@@ -239,14 +240,16 @@ public class ManageDisciplinePage {
         cancelButton.setOnAction(event -> dialogStage.close());
 
         dialogRoot.getChildren().addAll(nomeDisciplineField, courseField, weeklyWorkloadField,
-                teacherField, turnComboBox, dayComboBox, horaryComboBox, editButton, cancelButton);
+                teacherField, turnComboBox, dayComboBox, horaryComboBox, classRoomComboBox, editButton, cancelButton);
 
         Scene dialogScene = new Scene(dialogRoot, 500, 700);
         dialogStage.setScene(dialogScene);
         dialogStage.showAndWait();
     }
 
-    private void updateListView(ObservableList<DisciplineModel> updatedList) {
-        disciplineListView.setItems(updatedList);
+    public void updateListView() {
+        disciplines.clear();
+        disciplines.addAll(disciplineDAO.getAllDisciplines());
+        disciplineListView.setItems(disciplines);
     }
 }

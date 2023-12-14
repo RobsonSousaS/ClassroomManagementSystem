@@ -1,5 +1,6 @@
 package br.com.robytech.view;
 
+import br.com.robytech.dao.ClassRoomDAO;
 import br.com.robytech.model.ClassRoomModel;
 import br.com.robytech.model.enums.StatusEnum;
 import br.com.robytech.model.enums.TypeClassEnum;
@@ -17,9 +18,11 @@ public class ManageRoomsPage {
 
     private ObservableList<ClassRoomModel> classRooms;
     private ListView<ClassRoomModel> roomListView;
+    private ClassRoomDAO classRoomDAO;
 
     {
         roomListView = new ListView<>();
+        classRoomDAO = new ClassRoomDAO();
     }
 
     public void show(Stage primaryStage) {
@@ -29,8 +32,7 @@ public class ManageRoomsPage {
         root.setStyle("-fx-background-color: #1cc6e8;");
         root.setAlignment(Pos.CENTER);
 
-        classRooms = FXCollections.observableArrayList(ClassRoomModel.loadFromFile());
-        updateListView();
+        classRooms = FXCollections.observableArrayList();
 
         TextField searchField = new TextField();
         searchField.setPromptText("Digite número da sala");
@@ -52,9 +54,10 @@ public class ManageRoomsPage {
                 deleteButton.setOnAction(event -> {
                     ClassRoomModel item = getItem();
                     System.out.println("Deletando sala: " + item);
+                    classRoomDAO.deleteClassRoom(item.getIdString());
                     classRooms.remove(item);
                     updateListView(roomListView);
-                });
+                });                
 
                 buttonsBox = new HBox(10, updateButton, deleteButton);
                 buttonsBox.setAlignment(Pos.CENTER_LEFT);
@@ -127,9 +130,9 @@ public class ManageRoomsPage {
             StatusEnum status = statusComboBox.getValue();
 
             ClassRoomModel newRoom = new ClassRoomModel(block, number, type, status);
+            classRoomDAO.insertClassRoom(newRoom);
             classRooms.add(newRoom);
-            ClassRoomModel.saveToFile();
-            updateListView();
+       
 
             dialogStage.close();
         });
@@ -178,10 +181,11 @@ public class ManageRoomsPage {
             StatusEnum status = statusComboBox.getValue();
 
             ClassRoomModel updatedRoom = new ClassRoomModel(block, number, type, status);
+            classRoomDAO.updateClassRoom(updatedRoom);
 
             int index = classRooms.indexOf(roomToEdit);
             classRooms.set(index, updatedRoom);
-            updateListView();
+       
 
             dialogStage.close();
         });
@@ -197,8 +201,9 @@ public class ManageRoomsPage {
         dialogStage.showAndWait();
     }
 
-    private void updateListView() {
-        roomListView.setItems(FXCollections.observableArrayList(classRooms));
+    public void updateListView() {
+        classRooms.addAll(classRoomDAO.getAllClassRooms());
+        roomListView.setItems(classRooms);
     }
 
 }
