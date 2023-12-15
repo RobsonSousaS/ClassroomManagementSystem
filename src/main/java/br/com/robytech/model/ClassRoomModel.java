@@ -8,6 +8,7 @@ import br.com.robytech.model.enums.StatusEnum;
 import br.com.robytech.model.enums.TypeClassEnum;
 
 public class ClassRoomModel implements Serializable {
+  
     private String idString;
     private int block;
     private int numberClass;
@@ -113,6 +114,5 @@ public class ClassRoomModel implements Serializable {
         return getIdStringTemplate();
     }
 
-    
 
 }

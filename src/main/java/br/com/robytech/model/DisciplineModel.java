@@ -1,6 +1,7 @@
 package br.com.robytech.model;
 
 import java.io.Serializable;
+import java.util.List;
 
 import br.com.robytech.model.enums.DaysWeekEnum;
 import br.com.robytech.model.enums.HoraryEnum;
@@ -15,7 +16,7 @@ public class DisciplineModel implements Serializable {
     private TurnEnum turn = TurnEnum.M;
     private DaysWeekEnum day = DaysWeekEnum.SEGUNDA;
     private HoraryEnum horary = HoraryEnum.AB;
-    private ClassRoomModel classRoom;
+    private List<ClassRoomModel> clasrooms;
 
     public DisciplineModel(String nameDiscipline, String course, int weeklyWorkload,
             String teacher, TurnEnum turn, DaysWeekEnum day, HoraryEnum horary) {
@@ -29,7 +30,7 @@ public class DisciplineModel implements Serializable {
     }
 
     public DisciplineModel(String nameDiscipline, String course, int weeklyWorkload,
-            String teacher, TurnEnum turn, DaysWeekEnum day, HoraryEnum horary, ClassRoomModel classRoom) {
+            String teacher, TurnEnum turn, DaysWeekEnum day, HoraryEnum horary, List<ClassRoomModel> classrooms) {
         this.nameDiscipline = nameDiscipline;
         this.course = course;
         this.weeklyWorkload = weeklyWorkload;
@@ -37,7 +38,7 @@ public class DisciplineModel implements Serializable {
         this.turn = turn;
         this.day = day;
         this.horary = horary;
-        this.classRoom = classRoom;
+        this.clasrooms = classrooms;
     }
 
     public String getNameDiscipline() {
@@ -104,12 +105,12 @@ public class DisciplineModel implements Serializable {
         this.horary = horary;
     }
 
-    public ClassRoomModel getClassRoom() {
-        return classRoom;
+    public List<ClassRoomModel> getClasrooms() {
+        return clasrooms;
     }
 
-    public void setClassRoom(ClassRoomModel classRoom) {
-        this.classRoom = classRoom;
+    public void setClasrooms(List<ClassRoomModel> clasrooms) {
+        this.clasrooms = clasrooms;
     }
 
 }

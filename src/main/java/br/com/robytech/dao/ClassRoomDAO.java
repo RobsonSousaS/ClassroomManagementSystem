@@ -8,14 +8,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.com.robytech.model.ClassRoomModel;
+import br.com.robytech.model.DisciplineModel;
+import br.com.robytech.model.enums.HoraryEnum;
+import br.com.robytech.model.enums.DaysWeekEnum;
 import br.com.robytech.model.enums.StatusEnum;
+import br.com.robytech.model.enums.TurnEnum;
 import br.com.robytech.model.enums.TypeClassEnum;
 import br.com.robytech.util.DatabaseUtil;
 
 public class ClassRoomDAO {
     public List<ClassRoomModel> getAllClassRooms() {
         List<ClassRoomModel> classRooms = new ArrayList<>();
-        String sql = "SELECT * FROM classroom";
+        String sql = "SELECT * FROM ClassRoom";
         try (Connection connection = DatabaseUtil.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
                 ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -29,6 +33,9 @@ public class ClassRoomDAO {
 
                 classRoom.setIdString(resultSet.getString("idString"));
 
+                List<DisciplineModel> disciplines = getDisciplinesForClassRoom(classRoom.getIdString());
+                classRoom.setDisciplines(disciplines);
+
                 classRooms.add(classRoom);
             }
         } catch (SQLException e) {
@@ -38,55 +45,94 @@ public class ClassRoomDAO {
         return classRooms;
     }
 
-    public void insertClassRoom(ClassRoomModel classRoom) {
-        String sql = "INSERT INTO classroom (idString, block, numberClass, typeClass, status) VALUES (?, ?, ?, ?, ?)";
+    private List<DisciplineModel> getDisciplinesForClassRoom(String idString) {
+        List<DisciplineModel> disciplines = new ArrayList<>();
+        String sql = "SELECT d.* FROM Discipline d " +
+                "JOIN ClassRoom_has_Discipline cd ON d.idDiscipline = cd.Discipline_idDiscipline " +
+                "WHERE cd.ClassRoom_idClassroom = ?";
 
         try (Connection connection = DatabaseUtil.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
-            preparedStatement.setString(1, classRoom.getIdString());
-            preparedStatement.setInt(2, classRoom.getBlock());
-            preparedStatement.setInt(3, classRoom.getNumberClass());
-            preparedStatement.setString(4, classRoom.getTypeClass().toString());
-            preparedStatement.setString(5, classRoom.getStatus().toString());
+            preparedStatement.setString(1, idString);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
-            preparedStatement.executeUpdate();
+            while (resultSet.next()) {
+                DisciplineModel discipline = new DisciplineModel(
+                        resultSet.getString("nameDiscipline"),
+                        resultSet.getString("course"),
+                        resultSet.getInt("weeklyWorkload"),
+                        resultSet.getString("teacher"),
+                        TurnEnum.valueOf(resultSet.getString("turn")),
+                        DaysWeekEnum.valueOf(resultSet.getString("day")),
+                        HoraryEnum.valueOf(resultSet.getString("horary")));
+
+                discipline.setCodDiscipline(resultSet.getString("codDiscipline"));
+                disciplines.add(discipline);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return disciplines;
+    }
+
+    public void insertClassRoom(ClassRoomModel classRoom) {
+        String insertClassRoomSql = "INSERT INTO ClassRoom (idString, block, numberClass, typeClass, status) VALUES (?, ?, ?, ?, ?)";
+
+        try (Connection connection = DatabaseUtil.getConnection();
+                PreparedStatement insertClassRoomStatement = connection.prepareStatement(insertClassRoomSql,
+                        PreparedStatement.RETURN_GENERATED_KEYS)) {
+
+            insertClassRoomStatement.setString(1, classRoom.getIdString());
+            insertClassRoomStatement.setInt(2, classRoom.getBlock());
+            insertClassRoomStatement.setInt(3, classRoom.getNumberClass());
+            insertClassRoomStatement.setString(4, classRoom.getTypeClass().toString());
+            insertClassRoomStatement.setString(5, classRoom.getStatus().toString());
+
+            insertClassRoomStatement.executeUpdate();
+
+            try (ResultSet generatedKeys = insertClassRoomStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    classRoom.setIdString(generatedKeys.getString(1));
+                }
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void updateClassRoom(ClassRoomModel classRoom) {
-        String sql = "UPDATE classroom SET block = ?, numberClass = ?, typeClass = ?, status = ? WHERE idString = ?";
+        String updateClassRoomSql = "UPDATE ClassRoom SET block = ?, numberClass = ?, typeClass = ?, status = ? WHERE idString = ?";
 
         try (Connection connection = DatabaseUtil.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                PreparedStatement updateClassRoomStatement = connection.prepareStatement(updateClassRoomSql)) {
 
-            preparedStatement.setInt(1, classRoom.getBlock());
-            preparedStatement.setInt(2, classRoom.getNumberClass());
-            preparedStatement.setString(3, classRoom.getTypeClass().toString());
-            preparedStatement.setString(4, classRoom.getStatus().toString());
-            preparedStatement.setString(5, classRoom.getIdString());
+            updateClassRoomStatement.setInt(1, classRoom.getBlock());
+            updateClassRoomStatement.setInt(2, classRoom.getNumberClass());
+            updateClassRoomStatement.setString(3, classRoom.getTypeClass().toString());
+            updateClassRoomStatement.setString(4, classRoom.getStatus().toString());
+            updateClassRoomStatement.setString(5, classRoom.getIdString());
 
-            preparedStatement.executeUpdate();
+            updateClassRoomStatement.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public void deleteClassRoom(String idString) {
-        String sql = "DELETE FROM classroom WHERE idString = ?";
+        String deleteClassRoomSql = "DELETE FROM ClassRoom WHERE idString = ?";
 
         try (Connection connection = DatabaseUtil.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                PreparedStatement deleteClassRoomStatement = connection.prepareStatement(deleteClassRoomSql)) {
 
-            preparedStatement.setString(1, idString);
+            deleteClassRoomStatement.setString(1, idString);
+            deleteClassRoomStatement.executeUpdate();
 
-            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-    
 }
