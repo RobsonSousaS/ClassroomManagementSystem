@@ -57,7 +57,7 @@ public class ManageRoomsPage {
                     classRoomDAO.deleteClassRoom(item.getIdString());
                     classRooms.remove(item);
                     updateListView(roomListView);
-                });                
+                });
 
                 buttonsBox = new HBox(10, updateButton, deleteButton);
                 buttonsBox.setAlignment(Pos.CENTER_LEFT);
@@ -124,17 +124,22 @@ public class ManageRoomsPage {
 
         Button addButton = new Button("Adicionar");
         addButton.setOnAction(event -> {
-            int block = Integer.parseInt(blockField.getText());
-            int number = Integer.parseInt(numberField.getText());
-            TypeClassEnum type = typeComboBox.getValue();
-            StatusEnum status = statusComboBox.getValue();
+            if (validateInput(blockField.getText(), numberField.getText(), typeComboBox.getValue(),
+                    statusComboBox.getValue())) {
+                int block = Integer.parseInt(blockField.getText());
+                int number = Integer.parseInt(numberField.getText());
+                TypeClassEnum type = typeComboBox.getValue();
+                StatusEnum status = statusComboBox.getValue();
 
-            ClassRoomModel newRoom = new ClassRoomModel(block, number, type, status);
-            classRoomDAO.insertClassRoom(newRoom);
-            classRooms.add(newRoom);
-       
+                ClassRoomModel newRoom = new ClassRoomModel(block, number, type, status);
+                classRoomDAO.insertClassRoom(newRoom);
+                classRooms.add(newRoom);
+                updateListView();
 
-            dialogStage.close();
+                dialogStage.close();
+            } else {
+                showAlert("Erro", "Todos os campos devem ser preenchidos.");
+            }
         });
 
         Button cancelButton = new Button("Cancelar");
@@ -175,19 +180,24 @@ public class ManageRoomsPage {
 
         Button editButton = new Button("Editar");
         editButton.setOnAction(event -> {
-            int block = Integer.parseInt(blockField.getText());
-            int number = Integer.parseInt(numberField.getText());
-            TypeClassEnum type = typeComboBox.getValue();
-            StatusEnum status = statusComboBox.getValue();
+            if (validateInput(blockField.getText(), numberField.getText(), typeComboBox.getValue(),
+                    statusComboBox.getValue())) {
+                int block = Integer.parseInt(blockField.getText());
+                int number = Integer.parseInt(numberField.getText());
+                TypeClassEnum type = typeComboBox.getValue();
+                StatusEnum status = statusComboBox.getValue();
 
-            ClassRoomModel updatedRoom = new ClassRoomModel(block, number, type, status);
-            classRoomDAO.updateClassRoom(updatedRoom);
+                ClassRoomModel updatedRoom = new ClassRoomModel(block, number, type, status);
+                classRoomDAO.updateClassRoom(updatedRoom);
 
-            int index = classRooms.indexOf(roomToEdit);
-            classRooms.set(index, updatedRoom);
-       
+                int index = classRooms.indexOf(roomToEdit);
+                classRooms.set(index, updatedRoom);
+                updateListView();
 
-            dialogStage.close();
+                dialogStage.close();
+            } else {
+                showAlert("Erro", "Todos os campos devem ser preenchidos.");
+            }
         });
 
         Button cancelButton = new Button("Cancelar");
@@ -204,6 +214,18 @@ public class ManageRoomsPage {
     public void updateListView() {
         classRooms.addAll(classRoomDAO.getAllClassRooms());
         roomListView.setItems(classRooms);
+    }
+
+    private boolean validateInput(String block, String number, TypeClassEnum type, StatusEnum status) {
+        return !block.isEmpty() && !number.isEmpty() && type != null && status != null;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }

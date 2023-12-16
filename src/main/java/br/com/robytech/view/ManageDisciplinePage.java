@@ -155,22 +155,27 @@ public class ManageDisciplinePage {
         classRoomListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         Button addButton = new Button("Adicionar");
         addButton.setOnAction(event -> {
-            String nomeDiscipline = nomeDisciplineField.getText();
-            String course = courseField.getText();
-            int weeklyWorkload = Integer.parseInt(weeklyWorkloadField.getText());
-            String teacher = teacherField.getText();
-            TurnEnum turn = turnComboBox.getValue();
-            DaysWeekEnum day = dayComboBox.getValue();
-            HoraryEnum horary = horaryComboBox.getValue();
-            List<ClassRoomModel> selectedClassRooms = new ArrayList<>(
-                    classRoomListView.getSelectionModel().getSelectedItems());
+            if (validateInput(nomeDisciplineField.getText(), courseField.getText(),
+                    weeklyWorkloadField.getText(), teacherField.getText())) {
+                String nomeDiscipline = nomeDisciplineField.getText();
+                String course = courseField.getText();
+                int weeklyWorkload = Integer.parseInt(weeklyWorkloadField.getText());
+                String teacher = teacherField.getText();
+                TurnEnum turn = turnComboBox.getValue();
+                DaysWeekEnum day = dayComboBox.getValue();
+                HoraryEnum horary = horaryComboBox.getValue();
+                List<ClassRoomModel> selectedClassRooms = new ArrayList<>(
+                        classRoomListView.getSelectionModel().getSelectedItems());
 
-            DisciplineModel newDiscipline = new DisciplineModel(
-                    nomeDiscipline, course, weeklyWorkload, teacher,
-                    turn, day, horary, selectedClassRooms);
-            disciplineDAO.insertDiscipline(newDiscipline);
-            updateListView();
-            dialogStage.close();
+                DisciplineModel newDiscipline = new DisciplineModel(
+                        nomeDiscipline, course, weeklyWorkload, teacher,
+                        turn, day, horary, selectedClassRooms);
+                disciplineDAO.insertDiscipline(newDiscipline);
+                updateListView();
+                dialogStage.close();
+            } else {
+                showAlert("Erro", "Todos os campos devem ser preenchidos.");
+            }
         });
 
         dialogRoot.getChildren().addAll(
@@ -242,27 +247,31 @@ public class ManageDisciplinePage {
 
         Button editButton = new Button("Editar");
         editButton.setOnAction(event -> {
-            String nomeDiscipline = nomeDisciplineField.getText();
-            String course = courseField.getText();
-            int weeklyWorkload = Integer.parseInt(weeklyWorkloadField.getText());
-            String teacher = teacherField.getText();
-            TurnEnum turn = turnComboBox.getValue();
-            DaysWeekEnum day = dayComboBox.getValue();
-            HoraryEnum horary = horaryComboBox.getValue();
-            List<ClassRoomModel> selectedClassRooms = new ArrayList<>(
-                    classRoomListView.getSelectionModel().getSelectedItems());
+            if (validateInput(nomeDisciplineField.getText(), courseField.getText(),
+                    weeklyWorkloadField.getText(), teacherField.getText())) {
+                String nomeDiscipline = nomeDisciplineField.getText();
+                String course = courseField.getText();
+                int weeklyWorkload = Integer.parseInt(weeklyWorkloadField.getText());
+                String teacher = teacherField.getText();
+                TurnEnum turn = turnComboBox.getValue();
+                DaysWeekEnum day = dayComboBox.getValue();
+                HoraryEnum horary = horaryComboBox.getValue();
+                List<ClassRoomModel> selectedClassRooms = new ArrayList<>(
+                        classRoomListView.getSelectionModel().getSelectedItems());
 
-            DisciplineModel updatedDiscipline = new DisciplineModel(nomeDiscipline, course, weeklyWorkload, teacher,
-                    turn, day, horary, selectedClassRooms);
-            disciplineDAO.updateDiscipline(updatedDiscipline);
+                DisciplineModel updatedDiscipline = new DisciplineModel(nomeDiscipline, course, weeklyWorkload, teacher,
+                        turn, day, horary, selectedClassRooms);
+                disciplineDAO.updateDiscipline(updatedDiscipline);
 
-            int index = disciplines.indexOf(disciplineToEdit);
-            disciplines.set(index, updatedDiscipline);
-            updateListView();
+                int index = disciplines.indexOf(disciplineToEdit);
+                disciplines.set(index, updatedDiscipline);
+                updateListView();
 
-            dialogStage.close();
+                dialogStage.close();
+            } else {
+                showAlert("Erro", "Todos os campos devem ser preenchidos.");
+            }
         });
-
         dialogRoot.getChildren().addAll(
                 nomeDisciplineField, courseField, weeklyWorkloadField,
                 teacherField, turnComboBox, dayComboBox, horaryComboBox, classRoomListView, editButton);
@@ -276,5 +285,22 @@ public class ManageDisciplinePage {
         disciplines.clear();
         disciplines.addAll(disciplineDAO.getAllDisciplines());
         disciplineListView.setItems(disciplines);
+    }
+
+    private boolean validateInput(String... inputs) {
+        for (String input : inputs) {
+            if (input.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
