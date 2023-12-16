@@ -19,6 +19,7 @@ import br.com.robytech.util.DatabaseUtil;
 public class DisciplineDAO {
 
     private int nextDisciplineId = 0;
+    private int idDiscipline = 0;
 
     public List<DisciplineModel> getAllDisciplines() {
         List<DisciplineModel> disciplines = new ArrayList<>();
@@ -54,8 +55,8 @@ public class DisciplineDAO {
     private List<ClassRoomModel> getClassRoomsForDiscipline(String codDiscipline) {
         List<ClassRoomModel> classRooms = new ArrayList<>();
         String sql = "SELECT cr.* FROM classroom cr " +
-                "JOIN ClassRoom_has_Discipline cd ON cr.idString = cd.ClassRoom_idString " +
-                "WHERE cd.Discipline_codDiscipline = ?";
+                "JOIN ClassRoom_has_Discipline cd ON cr.idString = cd.ClassRoom_idClassroom " +
+                "WHERE cd.Discipline_idDiscipline = ?";
 
         try (Connection connection = DatabaseUtil.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
@@ -112,7 +113,7 @@ public class DisciplineDAO {
     }
 
     public void insertDiscipline(DisciplineModel discipline) {
-        String insertDisciplineSql = "INSERT INTO discipline (nameDiscipline, codDiscipline, course, weeklyWorkload, teacher, turn, day, horary) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String insertDisciplineSql = "INSERT INTO discipline (idDiscipline, nameDiscipline, codDiscipline, course, weeklyWorkload, teacher, turn, day, horary) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         String insertClassRoomDisciplineSql = "INSERT INTO ClassRoom_has_Discipline (ClassRoom_idClassroom, Discipline_idDiscipline) VALUES (?, ?)";
 
         try (Connection connection = DatabaseUtil.getConnection();
@@ -122,14 +123,15 @@ public class DisciplineDAO {
                         .prepareStatement(insertClassRoomDisciplineSql)) {
 
             discipline.setCodDiscipline(generateNextDisciplineId());
-            insertDisciplineStatement.setString(1, discipline.getNameDiscipline());
-            insertDisciplineStatement.setString(2, discipline.getCodDiscipline());
-            insertDisciplineStatement.setString(3, discipline.getCourse());
-            insertDisciplineStatement.setInt(4, discipline.getWeeklyWorkload());
-            insertDisciplineStatement.setString(5, discipline.getTeacher());
-            insertDisciplineStatement.setString(6, discipline.getTurn().toString());
-            insertDisciplineStatement.setString(7, discipline.getDay().toString());
-            insertDisciplineStatement.setString(8, discipline.getHorary().toString());
+            insertDisciplineStatement.setString(1, discipline.getCodDiscipline());
+            insertDisciplineStatement.setString(2, discipline.getNameDiscipline());
+            insertDisciplineStatement.setString(3, discipline.getCodDiscipline());
+            insertDisciplineStatement.setString(4, discipline.getCourse());
+            insertDisciplineStatement.setInt(5, discipline.getWeeklyWorkload());
+            insertDisciplineStatement.setString(6, discipline.getTeacher());
+            insertDisciplineStatement.setString(7, discipline.getTurn().toString());
+            insertDisciplineStatement.setString(8, discipline.getDay().toString());
+            insertDisciplineStatement.setString(9, discipline.getHorary().toString());
 
             insertDisciplineStatement.executeUpdate();
 
@@ -140,7 +142,7 @@ public class DisciplineDAO {
             }
 
             for (ClassRoomModel classRoom : discipline.getClasrooms()) {
-                insertClassRoomDisciplineStatement.setString(1, classRoom.getIdString());
+                insertClassRoomDisciplineStatement.setString(1, classRoom.getIdStringTemplate());
                 insertClassRoomDisciplineStatement.setString(2, discipline.getCodDiscipline());
                 insertClassRoomDisciplineStatement.executeUpdate();
             }
@@ -153,7 +155,7 @@ public class DisciplineDAO {
     public void updateDiscipline(DisciplineModel discipline) {
         String updateDisciplineSql = "UPDATE discipline SET nameDiscipline = ?, course = ?, weeklyWorkload = ?, teacher = ?, turn = ?, day = ?, horary = ? WHERE codDiscipline = ?";
         String deleteClassRoomDisciplineSql = "DELETE FROM ClassRoom_has_Discipline WHERE Discipline_codDiscipline = ?";
-        String insertClassRoomDisciplineSql = "INSERT INTO ClassRoom_has_Discipline (ClassRoom_idString, Discipline_codDiscipline) VALUES (?, ?)";
+        String insertClassRoomDisciplineSql = "INSERT INTO ClassRoom_has_Discipline (ClassRoom_idDiscipline, Discipline_codDiscipline) VALUES (?, ?)";
 
         try (Connection connection = DatabaseUtil.getConnection();
                 PreparedStatement updateDisciplineStatement = connection.prepareStatement(updateDisciplineSql);
@@ -175,7 +177,7 @@ public class DisciplineDAO {
             deleteClassRoomDisciplineStatement.executeUpdate();
 
             for (ClassRoomModel classRoom : discipline.getClasrooms()) {
-                insertClassRoomDisciplineStatement.setString(1, classRoom.getIdString());
+                insertClassRoomDisciplineStatement.setString(1, classRoom.getIdStringTemplate());
                 insertClassRoomDisciplineStatement.setString(2, discipline.getCodDiscipline());
                 insertClassRoomDisciplineStatement.executeUpdate();
             }
@@ -237,6 +239,10 @@ public class DisciplineDAO {
         String nextId = "D" + nextDisciplineId;
         nextDisciplineId += 1;
         return nextId;
+    }
+
+    public int gerenateIdDIscipline() {
+        return idDiscipline++;
     }
 
 }

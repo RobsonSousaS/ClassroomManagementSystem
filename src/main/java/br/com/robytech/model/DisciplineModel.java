@@ -112,5 +112,8 @@ public class DisciplineModel implements Serializable {
     public void setClasrooms(List<ClassRoomModel> clasrooms) {
         this.clasrooms = clasrooms;
     }
+    public boolean isScheduledFor() {
+        return this.turn == getTurn() && this.horary == getHorary();
+    }
 
 }

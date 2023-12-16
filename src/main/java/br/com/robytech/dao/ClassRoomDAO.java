@@ -78,17 +78,17 @@ public class ClassRoomDAO {
     }
 
     public void insertClassRoom(ClassRoomModel classRoom) {
-        String insertClassRoomSql = "INSERT INTO ClassRoom (idString, block, numberClass, typeClass, status) VALUES (?, ?, ?, ?, ?)";
+        String insertClassRoomSql = "INSERT INTO ClassRoom (idClassroom, idString, block, numberClass, typeClass, status) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DatabaseUtil.getConnection();
                 PreparedStatement insertClassRoomStatement = connection.prepareStatement(insertClassRoomSql,
                         PreparedStatement.RETURN_GENERATED_KEYS)) {
-
-            insertClassRoomStatement.setString(1, classRoom.getIdString());
-            insertClassRoomStatement.setInt(2, classRoom.getBlock());
-            insertClassRoomStatement.setInt(3, classRoom.getNumberClass());
-            insertClassRoomStatement.setString(4, classRoom.getTypeClass().toString());
-            insertClassRoomStatement.setString(5, classRoom.getStatus().toString());
+            insertClassRoomStatement.setString(1, classRoom.getIdStringTemplate());
+            insertClassRoomStatement.setString(2, classRoom.getIdString());
+            insertClassRoomStatement.setInt(3, classRoom.getBlock());
+            insertClassRoomStatement.setInt(4, classRoom.getNumberClass());
+            insertClassRoomStatement.setString(5, classRoom.getTypeClass().toString());
+            insertClassRoomStatement.setString(6, classRoom.getStatus().toString());
 
             insertClassRoomStatement.executeUpdate();
 
